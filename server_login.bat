@@ -6,7 +6,7 @@ net use \\saclaopr18.spring8.or.jp\common /user:SPRING8\xfelopr xfel5712
 
 
 
-rem	ログノートサーバー
+rem	LOG-Note & Calendar Server
 rem	http://saclaopr19.spring8.or.jp/~lognote/calendar/gantt-group-tasks-together.html
 rem	net use \\saclaoprfs01.spring8.or.jp /user:SPRING8\xfelopr xfel5712
 net use \\saclaoprfs01.spring8.or.jp /user:xfelopr xfel5712
