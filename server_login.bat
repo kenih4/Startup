@@ -14,6 +14,8 @@ rem	) else (
 rem	    echo ms-teams.exe is NOT RUNNING
 rem	    ms-teams.exe
 rem	)
+    powershell -ExecutionPolicy Bypass -NoProfile -File "Open_teams.ps1"
+
 
     net use * /delete
 
