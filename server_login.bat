@@ -1,4 +1,4 @@
-
+ @echo off
 
 
 curl -s --head http://www.google.com >nul
@@ -14,13 +14,13 @@ rem	) else (
 rem	    echo ms-teams.exe is NOT RUNNING
 rem	    ms-teams.exe
 rem	)
-    powershell -ExecutionPolicy Bypass -NoProfile -File "Open_teams.ps1"
 
 
     net use * /delete
 
-    net use \\saclaopr18.spring8.or.jp\common /user:sesopr ses@sacla5712
-    net use \\saclaopr18.spring8.or.jp\common /user:SPRING8\xfelopr xfel5712
+rem なぜか接続が時々きれるので、net use でドライブマッピングする際に /persistent:yes を付けて、再起動後も保持してみる
+    net use \\saclaopr18.spring8.or.jp\ses-users /persistent:yes /user:sesopr ses@sacla5712
+    net use \\saclaopr18.spring8.or.jp\common /persistent:yes /user:SPRING8\xfelopr xfel5712
 
     rem	LOG-Note & Calendar Server
     rem	http://saclaopr19.spring8.or.jp/~lognote/calendar/gantt-group-tasks-together.html
@@ -34,6 +34,8 @@ rem	)
     rem SMBv1を有効にしないといけない
     net use \\sesaccfs2.spring8.or.jp\operation /user:linac linac
 
+    rem ちょっと待たないと接続状態にならないので、5秒まってからnet useで確認
+    timeout /t 7
     net use
 
 ) else (
