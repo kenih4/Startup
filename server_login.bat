@@ -13,13 +13,14 @@ if %errorlevel%==0 (
     exit /b 1
 )
 
-net use * /delete
-
 rem なぜか接続が時々きれるので、net use でドライブマッピングする際に /persistent:yes を付けて、再起動後も保持してみる
 call :ConnectIfAlive saclaopr18.spring8.or.jp
 if %ERRORLEVEL% equ 0 (
+    net use \\saclaopr18.spring8.or.jp\ses-users /delete >nul 2>&1
+    rem net use \\saclaopr18.spring8.or.jp\common /delete >nul 2>&1
     net use \\saclaopr18.spring8.or.jp\ses-users /persistent:yes /user:sesopr ses@sacla5712
-    net use \\saclaopr18.spring8.or.jp\common /persistent:yes /user:SPRING8\xfelopr xfel5712
+    rem 今の所不要なのでコメントアウト
+    rem net use \\saclaopr18.spring8.or.jp\common /persistent:yes /user:SPRING8\xfelopr xfel5712
 )
 
 rem	LOG-Note & Calendar Server 今の所、使わないのでコメントアウトした
@@ -30,6 +31,7 @@ rem net use \\saclaoprfs01.spring8.or.jp /user:xfelopr xfel5712
 rem プログラムを統一する意味で、こちらも /persistent:yes を付けておく
 call :ConnectIfAlive xfelfs-ts.spring8.or.jp
 if %ERRORLEVEL% equ 0 (
+    net use \\xfelfs-ts.spring8.or.jp /delete >nul 2>&1
     net use \\xfelfs-ts.spring8.or.jp /persistent:yes /user:xfelopr xfel5712
 )
 
@@ -37,6 +39,7 @@ rem SMBv1を有効にしないといけない
 rem 当面使う予定がないのでコメントアウト
 rem call :ConnectIfAlive sesaccfs2.spring8.or.jp
 rem if %ERRORLEVEL% equ 0 (
+rem     net use \\sesaccfs2.spring8.or.jp\operation /delete >nul 2>&1
 rem     net use \\sesaccfs2.spring8.or.jp\operation /user:linac linac
 rem )
 
@@ -45,12 +48,15 @@ rem ubuntu22pd は ICMP(ping)に応答しないため、SSHのポート(22)でTCP疎通確認する
 call :ConnectIfAlive ubuntu22pd 22
 if %ERRORLEVEL% equ 0 (
     cmdkey /add:ubuntu22pd /user:kenichi /pass:kenichi1
+    net use \\sshfs\kenichi@ubuntu22pd\q_ubuntu /delete >nul 2>&1
     net use \\sshfs\kenichi@ubuntu22pd\q_ubuntu /user:kenichi kenichi1
 
     cmdkey /add:ubuntu22pd /user:xfelopr /pass:xfel5712
+    net use \\sshfs\xfelopr@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /delete >nul 2>&1
     net use \\sshfs\xfelopr@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /user:xfelopr xfel5712
 
     cmdkey /add:ubuntu22pd /user:oper /pass:spring8
+    net use \\sshfs\oper@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /delete >nul 2>&1
     net use \\sshfs\oper@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /user:oper spring8
 )
 
