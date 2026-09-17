@@ -41,7 +41,8 @@ rem     net use \\sesaccfs2.spring8.or.jp\operation /user:linac linac
 rem )
 
 rem SSHFSでマウント  ScreenInfoなど用
-call :ConnectIfAlive ubuntu22pd
+rem ubuntu22pd は ICMP(ping)に応答しないため、SSHのポート(22)でTCP疎通確認する
+call :ConnectIfAlive ubuntu22pd 22
 if %ERRORLEVEL% equ 0 (
     cmdkey /add:ubuntu22pd /user:kenichi /pass:kenichi1
     net use \\sshfs\kenichi@ubuntu22pd\q_ubuntu /user:kenichi kenichi1
@@ -61,27 +62,35 @@ pause
 goto :EOF
 
 rem ---------------------------------------------
-rem 指定サーバーに ping を打ち、疎通できれば ERRORLEVEL=0 を返す
+rem 指定サーバーの生死を確認する。ERRORLEVEL=0 なら生存
+rem 通常は ping で確認するが、ubuntu22pd のように ICMP(ping)をブロック
+rem しているホストは、第2引数にポート番号を指定するとTCP接続で
+rem 疎通確認する(pingが通らなくてもSSH等のポートが開いていれば生存とみなす)
 rem 起動直後などはまだ応答がないことがあるので、失敗したら少し待って
 rem 最大3回までリトライする。3回とも失敗したら赤字で表示する
-rem 使い方: call :ConnectIfAlive <サーバー名>
+rem 使い方: call :ConnectIfAlive <サーバー名> [ポート番号]
 rem ---------------------------------------------
 :ConnectIfAlive
 set "SERVER=%~1"
+set "PORT=%~2"
 set "RETRY=0"
 echo %SERVER%
 
 :ConnectIfAlive_Retry
-ping -n 1 -w 1000 "%SERVER%" > nul
+if "%PORT%"=="" (
+    ping -n 1 -w 1000 "%SERVER%" > nul
+) else (
+    powershell -NoProfile -Command "$c=New-Object System.Net.Sockets.TcpClient; $iar=$c.BeginConnect('%SERVER%',%PORT%,$null,$null); $ok=$iar.AsyncWaitHandle.WaitOne(1000); if($ok -and $c.Connected){$c.Close();exit 0}else{$c.Close();exit 1}"
+)
 if %ERRORLEVEL% equ 0 (
-    echo Ping OK:   %SERVER%
+    echo 疎通確認OK:   %SERVER%
     exit /b 0
 )
 set /a RETRY+=1
 if %RETRY% lss 3 (
-    echo %ESC%[91mPing Fail: %SERVER% ^(%RETRY%/3、2秒待って再試行^)%ESC%[0m
+    echo %ESC%[91m疎通確認Fail: %SERVER% ^(%RETRY%/3、2秒待って再試行^)%ESC%[0m
     ping -n 3 127.0.0.1 > nul
     goto :ConnectIfAlive_Retry
 )
-echo %ESC%[91mPing Fail: %SERVER%%ESC%[0m
+echo %ESC%[91m疎通確認Fail: %SERVER%%ESC%[0m
 exit /b 1
