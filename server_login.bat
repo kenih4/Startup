@@ -1,12 +1,15 @@
 @echo off
 setlocal
 
+rem 文字色を変えるためのエスケープ文字を取得(エラー/失敗を赤字表示するために使用)
+for /F %%a in ('echo prompt $E^| cmd') do set "ESC=%%a"
+
 rem ネットワーク接続確認
 curl -s --head http://www.google.com >nul
 if %errorlevel%==0 (
     echo Success Network connection
 ) else (
-    echo Fail
+    echo %ESC%[91mFail%ESC%[0m
     exit /b 1
 )
 
@@ -24,9 +27,10 @@ rem	http://saclaopr19.spring8.or.jp/~lognote/calendar/gantt-group-tasks-together
 rem	net use \\saclaoprfs01.spring8.or.jp /user:SPRING8\xfelopr xfel5712
 rem net use \\saclaoprfs01.spring8.or.jp /user:xfelopr xfel5712
 
+rem プログラムを統一する意味で、こちらも /persistent:yes を付けておく
 call :ConnectIfAlive xfelfs-ts.spring8.or.jp
 if %ERRORLEVEL% equ 0 (
-    net use \\xfelfs-ts.spring8.or.jp /user:xfelopr xfel5712
+    net use \\xfelfs-ts.spring8.or.jp /persistent:yes /user:xfelopr xfel5712
 )
 
 rem SMBv1を有効にしないといけない
@@ -58,16 +62,26 @@ goto :EOF
 
 rem ---------------------------------------------
 rem 指定サーバーに ping を打ち、疎通できれば ERRORLEVEL=0 を返す
+rem 起動直後などはまだ応答がないことがあるので、失敗したら少し待って
+rem 最大3回までリトライする。3回とも失敗したら赤字で表示する
 rem 使い方: call :ConnectIfAlive <サーバー名>
 rem ---------------------------------------------
 :ConnectIfAlive
 set "SERVER=%~1"
+set "RETRY=0"
 echo %SERVER%
-ping -n 1 "%SERVER%" > nul
+
+:ConnectIfAlive_Retry
+ping -n 1 -w 1000 "%SERVER%" > nul
 if %ERRORLEVEL% equ 0 (
     echo Ping OK:   %SERVER%
     exit /b 0
-) else (
-    echo Ping Fail: %SERVER%
-    exit /b 1
 )
+set /a RETRY+=1
+if %RETRY% lss 3 (
+    echo %ESC%[91mPing Fail: %SERVER% ^(%RETRY%/3、2秒待って再試行^)%ESC%[0m
+    ping -n 3 127.0.0.1 > nul
+    goto :ConnectIfAlive_Retry
+)
+echo %ESC%[91mPing Fail: %SERVER%%ESC%[0m
+exit /b 1
