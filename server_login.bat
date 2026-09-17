@@ -31,23 +31,33 @@ rem exit /b 1
 
 
 
-
-    rem	LOG-Note & Calendar Server
-    rem	http://saclaopr19.spring8.or.jp/~lognote/calendar/gantt-group-tasks-together.html
-    rem	net use \\saclaoprfs01.spring8.or.jp /user:SPRING8\xfelopr xfel5712
-    net use \\saclaoprfs01.spring8.or.jp /user:xfelopr xfel5712
-
-
-    net use \\xfelfs-ts.spring8.or.jp /user:xfelopr xfel5712
+rem	LOG-Note & Calendar Server 今の所、使わないのでコメントアウトした
+rem	http://saclaopr19.spring8.or.jp/~lognote/calendar/gantt-group-tasks-together.html
+rem	net use \\saclaoprfs01.spring8.or.jp /user:SPRING8\xfelopr xfel5712
+rem net use \\saclaoprfs01.spring8.or.jp /user:xfelopr xfel5712
 
 
-    rem SMBv1を有効にしないといけない
-    net use \\sesaccfs2.spring8.or.jp\operation /user:linac linac
-
-    rem ちょっと待たないと接続状態にならないので、5秒まってからnet useで確認
-    timeout /t 7
-    net use
+net use \\xfelfs-ts.spring8.or.jp /user:xfelopr xfel5712
 
 
+rem SMBv1を有効にしないといけない
+net use \\sesaccfs2.spring8.or.jp\operation /user:linac linac
+
+
+rem SSHFSでマウント  ScreenInfoなど用
+cmdkey /add:ubuntu22pd /user:kenichi /pass:kenichi1
+net use \\sshfs\kenichi@ubuntu22pd\q_ubuntu /user:kenichi kenichi1
+
+cmdkey /add:ubuntu22pd /user:xfelopr /pass:xfel5712
+net use \\sshfs\xfelopr@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /user:xfelopr xfel5712
+
+cmdkey /add:ubuntu22pd /user:oper /pass:spring8
+net use \\sshfs\oper@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /user:oper spring8
+
+
+
+rem ちょっと待たないと接続状態にならないので、7秒まってからnet useで確認
+timeout /t 7
+net use
 
 pause
