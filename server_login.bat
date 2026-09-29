@@ -50,14 +50,20 @@ if %ERRORLEVEL% equ 0 (
     cmdkey /add:ubuntu22pd /user:kenichi /pass:kenichi1
     net use \\sshfs\kenichi@ubuntu22pd\q_ubuntu /delete >nul 2>&1
     net use \\sshfs\kenichi@ubuntu22pd\q_ubuntu /user:kenichi kenichi1
+    ping -n 3 127.0.0.1 > nul
+    start "" explorer.exe "\\sshfs\kenichi@ubuntu22pd\q_ubuntu"
 
     cmdkey /add:ubuntu22pd /user:xfelopr /pass:xfel5712
     net use \\sshfs\xfelopr@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /delete >nul 2>&1
     net use \\sshfs\xfelopr@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /user:xfelopr xfel5712
+    ping -n 3 127.0.0.1 > nul
+    start "" explorer.exe "\\sshfs\xfelopr@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if"
 
     cmdkey /add:ubuntu22pd /user:oper /pass:spring8
     net use \\sshfs\oper@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /delete >nul 2>&1
     net use \\sshfs\oper@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if /user:oper spring8
+    ping -n 3 127.0.0.1 > nul
+    start "" explorer.exe "\\sshfs\oper@ubuntu22pd\users\kenichi\dvlp\xfel_scm_file_q\scm_if"
 )
 
 rem ‚¿‚å‚Á‚Æ‘Ò‚½‚È‚¢‚ÆÚ‘±ó‘Ô‚É‚È‚ç‚È‚¢‚Ì‚ÅA7•b‚Ü‚Á‚Ä‚©‚çnet use‚ÅŠm”F
